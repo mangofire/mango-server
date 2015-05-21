@@ -80,5 +80,7 @@ Route::filter('csrf', function()
 });
 
 Route::filter('token', function(){
-	$token = Input::get('token');
+	/*if(!Input::has('token')){
+		return 'token lost';
+	}*/
 });

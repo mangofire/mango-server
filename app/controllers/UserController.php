@@ -1,6 +1,39 @@
 <?php
 class UserController extends BaseController{
 
+	private $salt = 'mangoo'; 
+
+	public function getToken(){
+		$mobile = Input::get('mobile');
+		$password = Input::get('password');
+		if(self::check($mobile, $password)){
+			$token = Token::firstOrCreate(array('mobile' => $mobile));
+			if($token->token == null){
+				$token->token = md5(md5($mobile) .  $this->salt);
+				$token->uid = Auth::user()->id;
+				$token->save();
+			}
+			return $token->token;
+		}else{
+			return json_encode(array('msg','user login fail'));
+		}
+        
+	}
+
+	private function check($mobile, $password){
+		if(Auth::validate(array('mobile' => $mobile, 'password' => $password))){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public function updateToken(){
+		$uid = Auth::user()->id;
+		$mobile = Auth::user()->mobile;
+		Token::where('uid', $uid)->update('token',md5(md5($mobile) .  $this->salt));
+	}
+
 	public function register(){
 		$mobile = Input::get('mobile');
 		$password = Input::get('password');
